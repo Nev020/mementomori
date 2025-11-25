@@ -1,54 +1,54 @@
-# ⏳ Memento Mori: The Life Clock
+# Memento Mori: The Life Clock
 
-<p align="center">
-    <a href="YOUR_GITHUB_PAGES_URL_HERE">
-        <img src="https://img.shields.io/badge/▶️%20Play-111111?style=for-the-badge&logoColor=white" alt="Play The Life Clock" width="250" />
-    </a>
-</p>
+## [▶️ Play](https://nev020.github.io/mementomori/))
 
 ---
 
-## I. Clarity
+### I. Clarity
 
-You don't need more time. You need to **value the time you have left**.
-This is not merely an application. This is a deliberate, moment-by-moment measurement of your finite existence. We have taken the abstract concept of mortality and distilled it into a single, seamless, and inevitable numeric countdown.
+You do not need more time. You need to **value the time you have left**.
+
+This is not software. This is a deliberate state of mind. We have taken the abstract concept of mortality and distilled it into a single, seamless, and inevitable experience.
 
 It begins with your birth.
 
 ---
 
-## II. Essentialism
+### II. Essentialism
 
 Design is not simply how it looks, but how it works.
-Memento Mori is powered by native **HTML, CSS, and JavaScript**. It is live chronological mathematics—pure time difference, calculated and updated every second. We removed everything that didn't directly serve the core purpose.
 
-* **The Numbers:** Direct display of remaining time in **Hours**, **Minutes**, and **Seconds**.
+The **Life Clock** is powered by pure **JavaScript** date mathematics. It is live chronological computation—pure time difference, generated on demand. We removed everything that did not directly serve the core purpose.
+
 * **The Progress Bar:** Visual feedback. The rhythm of your consumption. Nothing else.
 * **The Interface:** Input your DOB and Expectancy. Press Initialize. Two inputs. One truth.
 
 ---
 
-## III. Precision
+### III. Precision
 
 We selected the units because they are true.
-The goal is **Temporal Awareness**—to convert years and decades into tangible, countable units. We display time based on three precise scales for three precise results.
 
-| Scale | Calculation | Rationale |
+The goal is **Temporal Awareness**—to guide your focus toward present action. We quantify life's duration across three precise magnitudes for a multi-layered result.
+
+| Scale | Unit | Rationale |
 | :--- | :--- | :--- |
-| **Hours** | Total hours remaining until projected end. | The immense, raw scale of opportunity. |
-| **Minutes** | Total minutes remaining until projected end. | Focus on the immediate task and the present. |
-| **Seconds** | Total seconds remaining until projected end. | The highest fidelity, constantly reminding you of movement. |
+| **Hours** | Total remaining hours ($H$) | The vast, raw scale of opportunity and longevity. |
+| **Minutes** | Total remaining minutes ($M$) | Focus on the immediate task and present week. |
+| **Seconds** | Total remaining seconds ($S$) | The highest fidelity, constantly reminding you of movement. |
 
-The **Percentage Consumed** isn't accidental. It's the moment of optimal sustained attention to your life's progress.
+The **Percentage Consumed** ($P$) is calculated by:
+$$P = \frac{(T_{now} - T_{birth})}{T_{expected\ death} - T_{birth}} \times 100$$
+It is the point of optimal sustained attention to your life's progress.
 
 ---
 
-## IV. The Human Element
+### IV. The Human Element
 
-Enter your details.
-Select your intent.
-Press Initialize.
+1.  Enter your **Date of Birth**.
+2.  Input your **Life Expectancy** (e.g., 80 years).
+3.  Press Initialize.
 
-The most powerful technology is that which centers your attention.
+**The most powerful technology is that which centers your attention.**
 
-This is Memento Mori.
+**This is Memento Mori.**
