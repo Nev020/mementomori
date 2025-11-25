@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>memento mori</title>
+
+    <meta name="description" content="A life countdown clock based on date of birth and life expectancy.">
+    <meta name="author" content="AI Assistant">
+    <meta property="og:title" content="memento mori">
+    <meta property="og:description" content="See your life countdown in hours, minutes, and seconds.">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --ink: #111111;
+            --sub: #86868b;
+            --track: #ebebf0;
+            --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        /* RESET & BASE */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: var(--font);
+            height: 100dvh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            -webkit-user-select: none;
+            user-select: none;
+            cursor: default;
+        }
+
+        /* --- SETUP OVERLAY --- */
+        #setup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            transition: opacity 0.6s ease, visibility 0.6s;
+        }
+
+        #setup.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        h1 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            color: var(--ink);
+        }
+
+        .input-group {
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 24px;
+        }
+
+        .label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--sub);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            margin-left: 4px;
+        }
+
+        input {
+            width: 100%;
+            padding: 18px;
+            border-radius: 14px;
+            border: none;
+            background: #f2f2f7;
+            font-size: 1.1rem;
+            color: var(--ink);
+            font-family: inherit;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        button {
+            width: 100%;
+            max-width: 320px;
+            padding: 18px;
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: 99em;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* --- MAIN LAYOUT --- */
+        .app-layout {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: max(20px, env(safe-area-inset-top)) 24px max(20px, env(safe-area-inset-bottom)) 24px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 1s ease 0.5s forwards;
+        }
+
+        .header-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--sub);
+        }
+
+        /* NEW: Reset Button Styling */
+        .reset-button {
+            background: none;
+            color: var(--sub);
+            border: none;
+            padding: 0;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 5px;
+            cursor: pointer;
+            text-decoration: underline;
+            opacity: 0;
+            animation: fadeIn 1s ease 0.8s forwards;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* END NEW STYLING */
+
+        /* --- THE NUMBERS GRID (VERTICAL STACK ENFORCED) --- */
+        .numbers-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            /* ALWAYS STACK VERTICALLY */
+            justify-content: center;
+            gap: 4vh;
+            /* Vertical breathing room */
+        }
+
+        .data-row {
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Hours */
+        .val {
+            display: block;
+            font-weight: 700;
+            line-height: 0.95;
+            letter-spacing: -0.04em;
+            color: var(--ink);
+            font-variant-numeric: tabular-nums;
+            font-size: clamp(2rem, 13vw, 8rem);
+            white-space: nowrap;
+        }
+
+        /* Minutes/Seconds */
+        .val-sub {
+            display: block;
+            font-weight: 600;
+            line-height: 0.95;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+            font-variant-numeric: tabular-nums;
+            font-size: clamp(1.8rem, 11vw, 6rem);
+            white-space: nowrap;
+        }
+
+        .meta {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--sub);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        /* --- FOOTER (Progress) --- */
+        .footer {
+            width: 100%;
+            padding-bottom: 10px;
+            opacity: 0;
+            animation: fadeIn 1s ease 0.8s forwards;
+        }
+
+        .prog-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--sub);
+        }
+
+        .track {
+            width: 100%;
+            height: 5px;
+            background: var(--track);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            width: 0%;
+            background: var(--ink);
+            border-radius: 10px;
+            transition: width 0.5s linear;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="setup">
+        <h1>memento mori</h1>
+
+        <div class="input-group">
+            <span class="label">Date of Birth</span>
+            <input type="date" id="dob">
+        </div>
+
+        <div class="input-group">
+            <span class="label">Life Expectancy (Years)</span>
+            <input type="number" id="exp" value="80" inputmode="numeric">
+        </div>
+
+        <button onclick="startApp()">Initialize</button>
+    </div>
+
+    <div class="app-layout">
+
+        <header>
+            <div class="header-title">Remaining Time</div>
+            <button class="reset-button" onclick="resetApp()">Change Setup</button>
+        </header>
+
+        <div class="numbers-container">
+            <div class="data-row">
+                <span class="val" id="h">0</span>
+                <span class="meta">Hours</span>
+            </div>
+
+            <div class="data-row">
+                <span class="val-sub" id="m">0</span>
+                <span class="meta">Minutes</span>
+            </div>
+
+            <div class="data-row">
+                <span class="val-sub" id="s">0</span>
+                <span class="meta">Seconds</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="prog-labels">
+                <span>Life Consumed</span>
+                <span id="pct">0%</span>
+            </div>
+            <div class="track">
+                <div class="fill" id="bar"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Store the interval ID globally to clear it later if needed (e.g., on reset)
+        let clockInterval;
+
+        function startApp() {
+            const dob = document.getElementById('dob').value;
+            const exp = document.getElementById('exp').value;
+
+            if (!dob || !exp) return;
+
+            // --- NEW: Save to Local Storage ---
+            localStorage.setItem('lifeClock_dob', dob);
+            localStorage.setItem('lifeClock_exp', exp);
+            // ----------------------------------
+
+            // Fade out setup
+            document.getElementById('setup').classList.add('hidden');
+
+            const birth = new Date(dob);
+            const target = birth.getFullYear() + parseInt(exp);
+            const death = new Date(birth);
+            // Set the year of 'expected' death
+            death.setFullYear(target);
+
+            // Clear any existing interval before starting a new one
+            if (clockInterval) {
+                clearInterval(clockInterval);
+            }
+
+            // Run clock immediately and set the interval
+            tick(birth, death);
+            clockInterval = setInterval(() => tick(birth, death), 1000);
+        }
+
+        function tick(birth, death) {
+            const now = new Date();
+            let diff = death - now; // Time remaining in milliseconds
+
+            // Calculations for Progress (Life Consumed)
+            const total = death - birth;
+            const lived = now - birth;
+            let p = (lived / total) * 100;
+            if (p < 0) p = 0;
+
+            // --- NEW: Handle Life Exceeded or Completed ---
+            if (diff <= 0) {
+                diff = 0;
+                p = 100;
+
+                // Stop the timer
+                if (clockInterval) {
+                    clearInterval(clockInterval);
+                }
+
+                // Update UI to final state
+                document.getElementById('h').innerText = "0";
+                document.getElementById('m').innerText = "0";
+                document.getElementById('s').innerText = "0";
+                document.querySelector('.header-title').innerText = "Time Exceeded! 🥳";
+            } else {
+                // Ensure header is set back to normal if a user changes DOB after expiry
+                document.querySelector('.header-title').innerText = "Remaining Time";
+            }
+            // ---------------------------------------------
+
+            // Time remaining breakdown (only calculated if time remains)
+            const h = Math.floor(diff / (1000 * 60 * 60));
+            const m = Math.floor(diff / (1000 * 60));
+            const s = Math.floor(diff / 1000);
+
+            // Update DOM
+            document.getElementById('h').innerText = h.toLocaleString();
+            document.getElementById('m').innerText = m.toLocaleString();
+            document.getElementById('s').innerText = s.toLocaleString();
+
+            // Update Progress
+            document.getElementById('pct').innerText = p.toFixed(5) + "%";
+            document.getElementById('bar').style.width = p + "%";
+        }
+
+        // --- NEW: Reset Function ---
+        function resetApp() {
+            // Clear the saved data
+            localStorage.removeItem('lifeClock_dob');
+            localStorage.removeItem('lifeClock_exp');
+
+            // Clear the running interval
+            if (clockInterval) {
+                clearInterval(clockInterval);
+            }
+
+            // Show the setup overlay again
+            document.getElementById('setup').classList.remove('hidden');
+        }
+
+        // --- NEW: Initial Load Function ---
+        function loadFromStorage() {
+            const savedDob = localStorage.getItem('lifeClock_dob');
+            const savedExp = localStorage.getItem('lifeClock_exp');
+
+            if (savedDob && savedExp) {
+                // Pre-fill inputs with saved values
+                document.getElementById('dob').value = savedDob;
+                document.getElementById('exp').value = savedExp;
+
+                // Start the app immediately
+                startApp();
+            }
+        }
+
+        // Call this function when the script loads
+        loadFromStorage();
+    </script>
+</body>
+
+</html>
