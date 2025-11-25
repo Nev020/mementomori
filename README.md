@@ -1,6 +1,6 @@
 # Memento Mori: The Life Clock
 
-## [▶️ Play](https://nev020.github.io/mementomori/))
+## [▶️ Play](https://nev020.github.io/mementomori/)
 
 ---
 
