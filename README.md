@@ -1,4 +1,4 @@
-# Memento Mori
+# mementomori
 
 ## [▶️ Play](https://nev020.github.io/mementomori/)
 
